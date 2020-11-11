@@ -4,8 +4,12 @@ using namespace sf;
 
 namespace GameObject {
     bool CollisionTest(const Sprite& Object1, const Sprite& Object2, int AlphaLimit = 0);
-    bool CollisionsTest(const Sprite& Object, const Sprite *Objects);
+    bool CollisionsTest(const Sprite& Object, const Sprite* Objects);
     bool MaskedTexture(Texture& LoadInto, const std::string& Filename);
+    bool CursorCheck(int x, int y, Text Object);
+    void ScoreRecord(int score);
+    std::string getScoreList(int &start, int k);
+    std::string getBestResult();
 
     class MaskOfGameObject
     {

@@ -1,5 +1,8 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <SFML/Graphics.hpp>
 #include <map>
+#include <fstream>
+#include <ctime>
 #include "GameObject.h"
 using namespace sf;
 
@@ -78,7 +81,7 @@ bool GameObject::CollisionTest(const Sprite& Object1, const Sprite& Object2, int
     return false;
 }
 
-bool GameObject::CollisionsTest(const Sprite& Object, const Sprite *Objects) {
+bool GameObject::CollisionsTest(const Sprite& Object, const Sprite* Objects) {
     for (int i = 0; i < sizeof(Objects); i++) {
         if (CollisionTest(Object, Objects[i])) {
             return true;
@@ -97,4 +100,65 @@ bool GameObject::MaskedTexture(Texture& LoadInto, const std::string& Filename)
 
     Bitmasks.CreateMask(&LoadInto, img);
     return true;
+}
+
+bool GameObject::CursorCheck(int x, int y, Text Object) {
+    if (x > Object.getPosition().x and x < Object.getPosition().x + Object.getLocalBounds().width) {
+        if (y > Object.getPosition().y and y < Object.getPosition().y + Object.getLocalBounds().height) {
+            return true;
+        }
+    }
+    return false;
+}
+void GameObject::ScoreRecord(int score) {
+    std::ofstream fout("./data/scorelist.txt", std::ios::app);
+    struct tm* tim;
+    time_t tt = time(NULL);
+    tim = localtime(&tt);
+    fout << tim->tm_mday << "." << tim->tm_mon + 1 << "." << tim->tm_year + 1900 << " " << tim->tm_hour << ":" << tim->tm_min << " - ";
+    fout << score << " points" << std::endl;
+    fout.close();
+
+    std::fstream data;
+    int t;
+    data.open("./data/best_result.txt", std::ios::in);
+    data >> t;
+    data.close();
+    if (score > t) {
+        std::ofstream fout("./data/best_result.txt", std::ios::out);
+        fout << score;
+        fout.close();
+    }
+
+}
+std::string GameObject::getScoreList(int &start, int k) {
+    std::vector<std::string> text;
+    std::string str_text = "";
+    int i = 0;
+    std::string line;
+    std::fstream data;
+    data.open("./data/scorelist.txt", std::ios::in);
+    while (getline(data, line)) {
+        text.push_back(line);
+    }
+    if (text.size() < k) {
+        k = text.size();
+    }
+    if (text.size() - start < k) {
+        start = text.size() - k;
+    }
+    for (int i = start; i < k + start; i++) {
+        str_text += text[i] + "\n";
+    }
+    return str_text;
+}
+
+std::string GameObject::getBestResult() {
+    std::string m;
+    std::string line;
+    std::fstream data;
+    data.open("./data/best_result.txt", std::ios::in);
+    data >> m;
+    data.close();
+    return m;
 }
